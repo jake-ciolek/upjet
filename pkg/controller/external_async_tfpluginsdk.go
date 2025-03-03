@@ -163,7 +163,10 @@ func (n *terraformPluginSDKAsyncExternal) Create(_ context.Context, mg xpresourc
 		defer ph.recoverIfPanic()
 
 		n.opTracker.logger.Debug("Async create starting...", "tfID", n.opTracker.GetTfID())
+		// Lock the AsyncTracker mutex before modifying Observation
+		n.opTracker.mu.Lock()
 		_, ph.err = n.terraformPluginSDKExternal.Create(ctx, mg)
+		n.opTracker.mu.Unlock()
 	}()
 
 	return managed.ExternalCreation{}, n.opTracker.LastOperation.Error()
@@ -196,7 +199,10 @@ func (n *terraformPluginSDKAsyncExternal) Update(_ context.Context, mg xpresourc
 		defer ph.recoverIfPanic()
 
 		n.opTracker.logger.Debug("Async update starting...", "tfID", n.opTracker.GetTfID())
+		// Lock the AsyncTracker mutex before modifying Observation
+		n.opTracker.mu.Lock()
 		_, ph.err = n.terraformPluginSDKExternal.Update(ctx, mg)
+		n.opTracker.mu.Unlock()
 	}()
 
 	return managed.ExternalUpdate{}, n.opTracker.LastOperation.Error()
